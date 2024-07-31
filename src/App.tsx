@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import './App.css';
+import Summary from './Summary';
 
 interface Item {
   category: string;
@@ -18,12 +19,15 @@ function App() {
   const [amount, setAmount] = useState(0);
   const [categoryList, setCategoryList] = useState<Item[]>([]);
 
+  const [summary, setSummary] = useState(false);
+
   const handleClick = () => {
     setName("");
     setDisplayString(`Expense Summary for ${name} as of ${date}`);
 
     setDesc('Please enter the amount of expenses per category in $$$.');
     setEntry(true);
+    setSummary(true);
   }
 
   const createRow = () => {
@@ -49,7 +53,7 @@ function App() {
           <br/>
           <button onClick={handleClick}>Submit</button>
         </div>
-        <div className="nameDisplay">
+        <div className="name-display">
           <h1>{displayString}</h1>
         </div>
         <div className="expenses">
@@ -69,8 +73,8 @@ function App() {
                 <button onClick={createRow}>Add Entry
                 </button>
 
-                <h1 id="transactionTitle">Transaction Details</h1>
-                <table className="expensesTable">
+                <h1 id="transaction-title">Transaction Details</h1>
+                <table className="expenses-table">
                   <thead>
                   <tr>
                     <td>Expense Category</td>
@@ -89,6 +93,8 @@ function App() {
               </>
           )}
         </div>
+
+        <div>{summary && <Summary></Summary>}</div>
       </div>
   );
 }
