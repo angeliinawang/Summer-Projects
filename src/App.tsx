@@ -1,7 +1,8 @@
 import React from 'react';
+import { useLocalStorage } from "@uidotdev/usehooks";
 import { useState } from 'react';
-import './App.css';
-import Summary from './Summary';
+import 'src/App.css';
+import Summary from 'src/Summary';
 
 interface Item {
   category: string;
@@ -10,16 +11,18 @@ interface Item {
 
 function App() {
   const title = "Expenses Summary";
-  const [name, setName] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [displayString, setDisplayString] = useState<string>("");
-  const [desc, setDesc] = useState<string>('');
-  const [entry, setEntry] = useState(false);
-  const [category, setCategory] = useState('');
-  const [amount, setAmount] = useState(0);
-  const [categoryList, setCategoryList] = useState<Item[]>([]);
+  const [name, setName] = useLocalStorage<string>("name", "");
+  const [date, setDate] = useLocalStorage<string>("date", "");
+  const [displayString, setDisplayString] = useLocalStorage<string>("displayString", "");
+  const [desc, setDesc] = useLocalStorage<string>("description", "");
+  const [entry, setEntry] = useLocalStorage("entry",false);
+  const [category, setCategory] = useLocalStorage("category", "");
+  const [amount, setAmount] = useLocalStorage("amount", 0);
 
-  const [summary, setSummary] = useState(false);
+  //store entries in map database
+  const [categoryList, setCategoryList] = useLocalStorage<Item[]>("categoryList", []);
+
+  const [summary, setSummary] = useLocalStorage("summary", false);
 
   const handleClick = () => {
     setName("");
