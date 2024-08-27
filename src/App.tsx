@@ -23,6 +23,25 @@ interface Item {
   amount: string;
 }
 
+function addCommas(num : Number) {
+  const numString = String(num);
+  let empty = "";
+  let count = 0;
+  for (let i = numString.length - 1; i >= 0; i--) {
+    empty = numString[i] + empty;
+    count++;
+    if (numString[i] === '.' || numString[i - 1] === '.' || numString[i - 2] === '.') {
+      count = 0;
+    }
+    if (count === 3 && i !== 0) {
+      empty = ',' + empty;
+      count = 0;
+    }
+  }
+
+  return empty;
+}
+
 function App() {
   const title = "Expenses Summary";
   const [companyName, setName] = useLocalStorage<string>("name", "");
@@ -31,7 +50,7 @@ function App() {
   const [desc, setDesc] = useLocalStorage<string>("description", "");
   const [entry, setEntry] = useLocalStorage("entry",false);
   const [category, setCategory] = useLocalStorage("category", "");
-  const [amount, setAmount] = useLocalStorage("amount", "");
+  let [amount, setAmount] = useLocalStorage("amount", "");
 
   //store entries in map database
   const [categoryList, setCategoryList] = useLocalStorage<Item[]>("categoryList", []);
@@ -53,19 +72,21 @@ function App() {
 
   const createRow = () => {
     if (category === "" || amount === "") {
-      console.log("toasties")
       toast({
         title: "Uh oh! Something went wrong.",
         description: "Please ensure you enter both a valid category and alert.",
         className: "bg-gray-800"
       });
     } else {
+        const roundedAmount = Math.round(Number(amount) * 100) / 100;
+        amount = String(roundedAmount);
+
       setCategoryList([...categoryList, {category, amount}]);
       setCategory("");
       setAmount("");
 
       itemTotal += Number(amount);
-      setItemTotal(itemTotal)
+      setItemTotal(itemTotal);
     }
   }
 
@@ -74,12 +95,21 @@ function App() {
     setCategoryList(updatedList);
 
     const amountRemoved = Number(categoryList[index].amount);
-    setItemTotal(itemTotal - amountRemoved);
+
+    itemTotal -= amountRemoved;
+    setItemTotal(itemTotal);
   }
 
   const clearEntries = () => {
     setCategoryList([]);
     setItemTotal(0);
+  }
+
+  const greater_than_1000 = (num: number) => {
+    if (num > 1000) {
+      return addCommas(num);
+    }
+    return num;
   }
 
   return (
@@ -156,12 +186,12 @@ function App() {
                           <TableRow key={index} onContextMenu={(e) => {
                             e.preventDefault(); removeRow(index);}}>
                             <TableCell>{item.category}</TableCell>
-                            <TableCell className="text-right">${item.amount}</TableCell>
+                            <TableCell className="text-right">${greater_than_1000(Number(item.amount))}</TableCell>
                           </TableRow>
                       ))}
                       <TableRow className="bg-zinc-800">
                         <TableCell className="text-teal-500">Total</TableCell>
-                        <TableCell className="text-right text-teal-500">${itemTotal}</TableCell>
+                        <TableCell className="text-right text-teal-500">${greater_than_1000(itemTotal)}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
