@@ -3,7 +3,7 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import { useNavigate } from "react-router-dom";
 
 // firebase imports
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "firebase/auth";
 import { auth } from "src/firebaseConfig";
 
 // shadcn imports
@@ -22,10 +22,23 @@ function Register() {
     const [fname, setFname] = useLocalStorage<string>("fname", "");
     const [lname, setLname] = useLocalStorage<string>("lname", "");
 
-    const handleRegister = async (email: string, password: string) => {
+    const handleRegister = async () => {
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const signInMethods= await fetchSignInMethodsForEmail(auth, email);
+            console.log(signInMethods);
+            // check if user is already logged in
+            if (signInMethods.length > 0) {
+                console.log("User already registered.");
+                navigate("/login");
+            } else {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                navigate("/home");
+            }
         } catch (error) {
+            if ((error as any).code == "auth/email-already-in-use") {
+                navigate("/login");
+            }
+            console.log(error)
         }
     }
 
@@ -39,8 +52,7 @@ function Register() {
     }
 
     const handleClick = async () => {
-        navigate("/home");
-        await handleRegister(email, password);
+        await handleRegister();
     }
 
     return (
