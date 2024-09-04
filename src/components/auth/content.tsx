@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 // shadcn imports
@@ -53,21 +54,37 @@ function Content() {
     //store entries in map database
     const [categoryList, setCategoryList] = useLocalStorage<Item[]>("categoryList", []);
     const [summary, setSummary] = useLocalStorage("summary", false);
-    const [showEntry, setShowEntry] = useLocalStorage("setEntry", false);
+    const [showEntry, setShowEntry] = useLocalStorage("showEntry", true);
     let [itemTotal, setItemTotal] = useLocalStorage("itemTotal", 0);
 
-    const signIn = () => {
-        setShowEntry(true);
-    }
+    const navigate = useNavigate();
+
     const handleClick = () => {
+        // connect to home screen
+        const newSummary = `Summary for ${companyName} on ${date}`;
+        const existingSummaries = JSON.parse(localStorage.getItem("summaries") || "[]");
+        const updatedSummaries = [...existingSummaries, {name: companyName, date, summary: newSummary}];
+        localStorage.setItem("summaries", JSON.stringify(updatedSummaries));
+
         setName("");
         setDisplayString(`Expense Summary for ${companyName} as of ${date}`);
-
         setDesc('Please enter the amount of expenses per category in $$$.');
         setEntry(true);
         setSummary(true);
         setShowEntry(false);
     }
+
+    useEffect(() => {
+        const currentSummary = JSON.parse(localStorage.getItem("currentSummary") || "{}");
+        if (currentSummary.name) {
+            setName(currentSummary.name);
+            setDate(currentSummary.date);
+            setDisplayString(currentSummary.summary);
+            setSummary(true);
+            setEntry(true);
+            // setShowEntry(false);
+        }
+    }, []);
 
     const { toast } = useToast();
 
@@ -113,8 +130,13 @@ function Content() {
         return num;
     }
 
+    const goHome = () => {
+        navigate("/home");
+    }
+
     return (
         <div className="content">
+            <Button className="bg-teal-600 mt-3" onClick={goHome}>Back to Home</Button>
             {showEntry && (
                 <div className="text-center grid w-full max-w-sm mx-auto gap-1.5 items-center justify-items-center">
                     <Label className="mt-5">Enter your business name:</Label>

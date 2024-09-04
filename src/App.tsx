@@ -18,6 +18,7 @@ interface Item {
   amount: string;
 }
 
+
 function addCommas(num : Number) {
   const numString = String(num);
   let empty = "";
