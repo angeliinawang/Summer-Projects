@@ -21,13 +21,13 @@ function Login() {
         try {
             const signInMethods = await fetchSignInMethodsForEmail(auth, email);
 
-            if (signInMethods.length > 0) {
-                await signInWithEmailAndPassword(auth, email, password);
-                navigate("/content");
-            } else {
-                console.log("not registered.")
-                navigate("/register");
-            }
+            // if (signInMethods.length > 0) {
+            await signInWithEmailAndPassword(auth, email, password);
+            // navigate("/content");
+            // } else {
+            //     console.log("not registered.")
+            //     navigate("/register");
+            // }
         } catch (error) {
             await signInWithEmailAndPassword(auth, email, password);
             navigate("/content");
